@@ -5,6 +5,7 @@ namespace Sales.Domain.Entities;
 public sealed class Sale
 {
     public Guid Id { get; set; }
+    public Guid CompanyId { get; set; }
     public PaymentMethod PaymentMethod { get; set; }
     public decimal Discount { get; set; }
     public decimal Subtotal { get; set; }

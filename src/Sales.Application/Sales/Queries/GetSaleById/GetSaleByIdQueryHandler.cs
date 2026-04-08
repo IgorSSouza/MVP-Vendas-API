@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Sales.Application.Abstractions.Auth;
 using Sales.Application.Abstractions.Persistence;
 using Sales.Application.Sales.Common;
 
@@ -8,17 +9,22 @@ namespace Sales.Application.Sales.Queries.GetSaleById;
 public sealed class GetSaleByIdQueryHandler : IRequestHandler<GetSaleByIdQuery, SaleResponse?>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public GetSaleByIdQueryHandler(IAppDbContext dbContext)
+    public GetSaleByIdQueryHandler(IAppDbContext dbContext, ICurrentUserContext currentUserContext)
     {
         _dbContext = dbContext;
+        _currentUserContext = currentUserContext;
     }
 
     public async Task<SaleResponse?> Handle(GetSaleByIdQuery request, CancellationToken cancellationToken)
     {
+        var companyId = _currentUserContext.CompanyId
+            ?? throw new UnauthorizedAccessException("A company context is required.");
+
         var sale = await _dbContext.Sales
             .Include(x => x.Items)
-            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == request.Id && x.CompanyId == companyId, cancellationToken);
 
         if (sale is null)
         {

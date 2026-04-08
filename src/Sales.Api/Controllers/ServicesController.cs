@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Services.Commands.CreateService;
 using Sales.Application.Services.Commands.ToggleServiceStatus;
@@ -10,6 +11,7 @@ using Sales.Application.Services.Queries.GetServiceById;
 namespace Sales.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/services")]
 public sealed class ServicesController : ControllerBase
 {

@@ -1,4 +1,5 @@
 using MediatR;
+using Sales.Application.Abstractions.Auth;
 using Sales.Application.Abstractions.Persistence;
 using Sales.Application.Products.Common;
 using Sales.Domain.Entities;
@@ -8,19 +9,24 @@ namespace Sales.Application.Products.Commands.CreateProduct;
 public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductResponse>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public CreateProductCommandHandler(IAppDbContext dbContext)
+    public CreateProductCommandHandler(IAppDbContext dbContext, ICurrentUserContext currentUserContext)
     {
         _dbContext = dbContext;
+        _currentUserContext = currentUserContext;
     }
 
     public async Task<ProductResponse> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         var now = DateTime.Now;
+        var companyId = _currentUserContext.CompanyId
+            ?? throw new UnauthorizedAccessException("A company context is required.");
 
         var product = new Product
         {
             Id = Guid.NewGuid(),
+            CompanyId = companyId,
             Name = request.Name.Trim(),
             Category = request.Category.Trim(),
             CostPrice = request.CostPrice,

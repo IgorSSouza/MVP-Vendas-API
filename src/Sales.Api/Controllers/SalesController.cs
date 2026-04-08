@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Sales.Commands.CreateSale;
 using Sales.Application.Sales.Common;
@@ -8,6 +9,7 @@ using Sales.Application.Sales.Queries.GetSaleById;
 namespace Sales.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/sales")]
 public sealed class SalesController : ControllerBase
 {

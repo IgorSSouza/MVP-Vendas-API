@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Products.Commands.CreateProduct;
 using Sales.Application.Products.Commands.ToggleProductStatus;
@@ -10,6 +11,7 @@ using Sales.Application.Products.Queries.GetProductById;
 namespace Sales.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/products")]
 public sealed class ProductsController : ControllerBase
 {

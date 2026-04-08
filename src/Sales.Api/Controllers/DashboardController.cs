@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Dashboard.Common;
 using Sales.Application.Dashboard.Queries.GetDashboard;
@@ -6,6 +7,7 @@ using Sales.Application.Dashboard.Queries.GetDashboard;
 namespace Sales.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/dashboard")]
 public sealed class DashboardController : ControllerBase
 {

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Sales.Application.Abstractions.Auth;
 using Sales.Application.Abstractions.Persistence;
 using Sales.Application.Sales.Common;
 using Sales.Domain.Entities;
@@ -10,10 +11,12 @@ namespace Sales.Application.Sales.Commands.CreateSale;
 public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand, SaleResponse>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public CreateSaleCommandHandler(IAppDbContext dbContext)
+    public CreateSaleCommandHandler(IAppDbContext dbContext, ICurrentUserContext currentUserContext)
     {
         _dbContext = dbContext;
+        _currentUserContext = currentUserContext;
     }
 
     public async Task<SaleResponse> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
@@ -21,9 +24,12 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         var now = DateTime.Now;
+        var companyId = _currentUserContext.CompanyId
+            ?? throw new UnauthorizedAccessException("A company context is required.");
         var sale = new Sale
         {
             Id = Guid.NewGuid(),
+            CompanyId = companyId,
             PaymentMethod = request.PaymentMethod,
             Discount = request.Discount,
             CreatedAt = now
@@ -35,7 +41,8 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
         {
             if (item.ItemType == SaleItemType.Product)
             {
-                var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == item.ItemId, cancellationToken);
+                var product = await _dbContext.Products
+                    .FirstOrDefaultAsync(x => x.Id == item.ItemId && x.CompanyId == companyId, cancellationToken);
 
                 if (product is null)
                 {
@@ -66,7 +73,8 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
             }
             else if (item.ItemType == SaleItemType.Service)
             {
-                var service = await _dbContext.Services.FirstOrDefaultAsync(x => x.Id == item.ItemId, cancellationToken);
+                var service = await _dbContext.Services
+                    .FirstOrDefaultAsync(x => x.Id == item.ItemId && x.CompanyId == companyId, cancellationToken);
 
                 if (service is null)
                 {

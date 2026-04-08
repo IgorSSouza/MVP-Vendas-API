@@ -8,6 +8,12 @@ public interface IAppDbContext
 {
     DatabaseFacade Database { get; }
 
+    DbSet<User> Users { get; }
+
+    DbSet<Company> Companies { get; }
+
+    DbSet<UserCompany> UserCompanies { get; }
+
     DbSet<Product> Products { get; }
 
     DbSet<Service> Services { get; }
