@@ -37,6 +37,7 @@ public sealed class ToggleProductStatusCommandHandler : IRequestHandler<TogglePr
 
         return new ProductResponse(
             product.Id,
+            product.Barcode,
             product.Name,
             product.Category,
             product.CostPrice,

@@ -21,6 +21,7 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
     {
         var companyId = _currentUserContext.CompanyId
             ?? throw new UnauthorizedAccessException("A company context is required.");
+        var barcode = NormalizeBarcode(request.Barcode);
 
         var product = await _dbContext.Products
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.CompanyId == companyId, cancellationToken);
@@ -30,6 +31,18 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
             throw new KeyNotFoundException("Product was not found.");
         }
 
+        if (barcode is not null)
+        {
+            var barcodeExists = await _dbContext.Products
+                .AnyAsync(x => x.CompanyId == companyId && x.Barcode == barcode && x.Id != request.Id, cancellationToken);
+
+            if (barcodeExists)
+            {
+                throw new InvalidOperationException("A product with this barcode already exists for the current company.");
+            }
+        }
+
+        product.Barcode = barcode;
         product.Name = request.Name.Trim();
         product.Category = request.Category.Trim();
         product.CostPrice = request.CostPrice;
@@ -41,6 +54,7 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
 
         return new ProductResponse(
             product.Id,
+            product.Barcode,
             product.Name,
             product.Category,
             product.CostPrice,
@@ -49,5 +63,10 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
             product.IsActive,
             product.CreatedAt,
             product.UpdatedAt);
+    }
+
+    private static string? NormalizeBarcode(string? barcode)
+    {
+        return string.IsNullOrWhiteSpace(barcode) ? null : barcode.Trim();
     }
 }

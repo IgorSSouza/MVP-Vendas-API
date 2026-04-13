@@ -83,6 +83,7 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedNever();
             entity.Property(x => x.CompanyId).IsRequired();
+            entity.Property(x => x.Barcode).HasMaxLength(100);
             entity.Property(x => x.Name).IsRequired().HasMaxLength(150);
             entity.Property(x => x.Category).IsRequired().HasMaxLength(100);
             entity.Property(x => x.CostPrice).HasPrecision(18, 2);
@@ -92,6 +93,9 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             entity.Property(x => x.CreatedAt).IsRequired();
             entity.Property(x => x.UpdatedAt).IsRequired();
             entity.HasIndex(x => x.CompanyId);
+            entity.HasIndex(x => new { x.CompanyId, x.Barcode })
+                .IsUnique()
+                .HasFilter("\"Barcode\" IS NOT NULL AND \"Barcode\" <> ''");
             entity.HasOne<Company>()
                 .WithMany()
                 .HasForeignKey(x => x.CompanyId)

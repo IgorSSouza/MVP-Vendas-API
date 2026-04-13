@@ -26,6 +26,7 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
             .Where(product => product.Id == request.Id && product.CompanyId == companyId)
             .Select(product => new ProductResponse(
                 product.Id,
+                product.Barcode,
                 product.Name,
                 product.Category,
                 product.CostPrice,

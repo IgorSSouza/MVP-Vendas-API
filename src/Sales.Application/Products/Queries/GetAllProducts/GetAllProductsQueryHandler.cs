@@ -27,6 +27,7 @@ public sealed class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQ
             .OrderBy(product => product.Name)
             .Select(product => new ProductResponse(
                 product.Id,
+                product.Barcode,
                 product.Name,
                 product.Category,
                 product.CostPrice,

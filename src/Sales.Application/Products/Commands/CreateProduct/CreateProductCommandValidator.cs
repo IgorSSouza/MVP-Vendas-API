@@ -6,6 +6,9 @@ public sealed class CreateProductCommandValidator : AbstractValidator<CreateProd
 {
     public CreateProductCommandValidator()
     {
+        RuleFor(x => x.Barcode)
+            .MaximumLength(100);
+
         RuleFor(x => x.Name)
             .NotEmpty();
 

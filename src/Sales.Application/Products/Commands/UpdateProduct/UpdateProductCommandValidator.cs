@@ -9,6 +9,9 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
         RuleFor(x => x.Id)
             .NotEmpty();
 
+        RuleFor(x => x.Barcode)
+            .MaximumLength(100);
+
         RuleFor(x => x.Name)
             .NotEmpty();
 
