@@ -131,6 +131,8 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             entity.Property(x => x.PaymentMethod)
                 .HasConversion<int>()
                 .IsRequired();
+            entity.Property(x => x.Installments).IsRequired();
+            entity.Property(x => x.InstallmentAmount).HasPrecision(18, 2);
             entity.Property(x => x.Discount).HasPrecision(18, 2);
             entity.Property(x => x.Subtotal).HasPrecision(18, 2);
             entity.Property(x => x.Total).HasPrecision(18, 2);

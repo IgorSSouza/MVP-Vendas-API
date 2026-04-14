@@ -110,6 +110,8 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
             throw new InvalidOperationException("Sale total cannot be negative.");
         }
 
+        sale.Installments = NormalizeInstallments(request.PaymentMethod, request.Installments);
+        sale.InstallmentAmount = CalculateInstallmentAmount(sale.Total, sale.Installments);
         sale.Profit = items.Sum(item => item.Profit) - request.Discount;
 
         _dbContext.Sales.Add(sale);
@@ -152,6 +154,8 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
             sale.Id,
             sale.CreatedAt,
             sale.PaymentMethod,
+            sale.Installments,
+            sale.InstallmentAmount,
             sale.Subtotal,
             sale.Discount,
             sale.Total,
@@ -168,5 +172,20 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
                     item.Subtotal,
                     item.Profit))
                 .ToList());
+    }
+
+    private static int NormalizeInstallments(PaymentMethod paymentMethod, int installments)
+    {
+        if (paymentMethod != PaymentMethod.CreditCard)
+        {
+            return 1;
+        }
+
+        return installments;
+    }
+
+    private static decimal CalculateInstallmentAmount(decimal total, int installments)
+    {
+        return decimal.Round(total / installments, 2, MidpointRounding.AwayFromZero);
     }
 }

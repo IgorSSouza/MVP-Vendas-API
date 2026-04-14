@@ -7,6 +7,8 @@ public sealed class Sale
     public Guid Id { get; set; }
     public Guid CompanyId { get; set; }
     public PaymentMethod PaymentMethod { get; set; }
+    public int Installments { get; set; }
+    public decimal InstallmentAmount { get; set; }
     public decimal Discount { get; set; }
     public decimal Subtotal { get; set; }
     public decimal Total { get; set; }

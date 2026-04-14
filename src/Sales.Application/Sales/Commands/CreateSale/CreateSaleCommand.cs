@@ -8,6 +8,8 @@ public sealed class CreateSaleCommand : IRequest<SaleResponse>
 {
     public PaymentMethod PaymentMethod { get; set; }
 
+    public int Installments { get; set; } = 1;
+
     public decimal Discount { get; set; }
 
     public List<CreateSaleItemRequest> Items { get; set; } = [];
